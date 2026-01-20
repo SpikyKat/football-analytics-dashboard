@@ -27,13 +27,21 @@ The project focuses on **data processing, modeling, and visualization best pract
 
 ## 🧱 Project Architecture
 Open Football Datasets (GitHub)
+
 ↓
+
 Python Data Processing & Cleaning
+
 ↓
+
 Fact & Dimension Tables
+
 ↓
+
 Power BI Data Model (Star Schema)
+
 ↓
+
 Interactive Dashboards & Insights
 
 
