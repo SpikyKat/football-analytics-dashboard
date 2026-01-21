@@ -1,122 +1,204 @@
-# ⚽ European Football Analytics Dashboard (Power BI + Python)
+# ⚽ European Football Analytics Dashboard (1993–2025)
 
-## 📌 Project Overview
-This project is an end-to-end football analytics solution built using **Python and Power BI**, analyzing match-level data across **five major European football leagues** from **1993 to the present**.  
-The dashboard enables historical and comparative analysis of team performance, league competitiveness, goal trends, and home vs away dynamics.
+An end-to-end **ETL and analytics project** that extracts historical European football match data, transforms it into an analytics-ready star schema using Python, and visualizes insights using **Power BI**.
 
-The project focuses on **data processing, modeling, and visualization best practices**, following a scalable analytics architecture suitable for real-world BI use cases.
+This project demonstrates **real-world data engineering concepts**, analytical modeling, and dashboard storytelling.
 
 ---
 
-## 🏆 Leagues Covered
-- English Premier League  
-- Spanish La Liga  
-- Italian Serie A  
-- German Bundesliga  
-- French Ligue 1  
+## 📌 Project Objective
+
+The goal of this project is to:
+
+- Build a reproducible **ETL pipeline** for football match data
+- Analyze **30+ years** of football history (1993–2025)
+- Design a clean **fact–dimension data model**
+- Deliver interactive dashboards for league, team, and historical analysis
 
 ---
 
-## 🗂️ Data Source
-- Open football datasets sourced from **football-data.co.uk**
-- Curated and maintained via the **datasets/football-datasets** GitHub repository
-- Historical coverage from **1993 onwards**
-- Data updated regularly via GitHub Actions
+## 🧱 ETL Architecture Overview
+
+**Web Source (HTML pages)**  
+⬇️  
+**EXTRACT (BeautifulSoup)**  
+⬇️  
+**TRANSFORM (Python / Pandas)**  
+⬇️  
+**LOAD (Power BI)**  
+⬇️  
+**Analytics & Visualization**
 
 ---
 
-## 🧱 Project Architecture
-Open Football Datasets (GitHub)
 
-              ↓
+## 🔍 EXTRACT (Data Collection)
 
-Python Data Processing & Cleaning
+### Data Source
+- Public football statistics sources (e.g. football-data.co.uk)
+- Season-wise match result tables
 
-              ↓
+### Extraction Approach
+- Web scraping using **BeautifulSoup**
+- Each league and season extracted independently
+- Raw match data persisted as structured CSV files
 
-Fact & Dimension Tables
+### Why BeautifulSoup?
+- Lightweight and reliable for static HTML
+- Fine-grained control over table parsing
+- Suitable for repeatable ETL pipelines
 
-              ↓
-
-Power BI Data Model (Star Schema)
-
-              ↓
-
-Interactive Dashboards & Insights
-
-
----
-
-## 🛠️ Tools & Technologies
-- **Python** (pandas, numpy)
-- **Power BI**
-- **GitHub**
-- Open-source football datasets
+### Output
+- One CSV per league per season
+- Consistent schema across seasons
 
 ---
 
-## 📊 Data Modeling
-The project uses a **star schema** design for efficient analysis and performance:
+## 🔄 TRANSFORM (Data Processing & Modeling)
+
+Transformation is handled entirely in **Python (Pandas)**.
+
+### Key Transformation Steps
+
+#### 1. Data Standardization
+- Unified column names across all seasons
+- Standardized date formats
+- Ensured consistent data types
+
+#### 2. Data Enrichment
+- Added metadata columns:
+- `League`
+- `Season`
+- Converted date fields to datetime
+- Derived analytical attributes (Year, Month, Era)
+
+#### 3. Fact Table Creation
+All season-level files are merged into a single **fact table**:
+
+**FactResults**
+- Grain: one row per match
+- Covers all leagues and seasons
+
+Key columns:
+- Date
+- League
+- Season
+- HomeTeam
+- AwayTeam
+- Goals (home & away)
+- Match result
+
+#### 4. Dimension Tables
+Dimensions are derived directly from the fact table (best practice):
+
+- **DimDate** – calendar attributes
+- **DimTeams** – team & league mapping
+
+This ensures consistency and avoids duplication.
+
+---
+
+## ⭐ Data Model (Star Schema)
 
 ### Fact Table
-- Match results (goals, outcomes, home/away teams, season, league)
+**FactResults**
+- Date
+- League
+- Season
+- HomeTeam
+- AwayTeam
+- FTHG
+- FTAG
+- FTR
+- HTHG
+- HTAG
+- HTR
 
 ### Dimension Tables
-- Teams  
-- Leagues  
-- Seasons  
-- Date  
+**DimDate**
+- Date
+- Year
+- Month
+- Quarter
+- Week
+- DayName
+- Era
 
-This approach improves scalability, readability, and dashboard performance.
+**DimTeams**
+- Team
+- League
 
----
-
-## 📈 Dashboard Features
-- League-level performance analysis  
-- Team performance trends across seasons  
-- Home vs away goal and win comparison  
-- Historical goal and match trends (1993–present)  
-- Interactive filters by league, team, and season  
-
----
-
-## 🔄 Data Refresh Workflow
-- Python scripts are used to process and standardize the datasets
-- Updated datasets can be regenerated and reloaded into Power BI
-- Supports repeatable and reliable refresh cycles
+This model is optimized for:
+- Query performance
+- DAX simplicity
+- Analytical flexibility
 
 ---
 
-## ⚖️ Data License
-This project uses data released under the  
-**Public Domain Dedication and License (PDDL 1.0)**  
-(http://www.opendatacommons.org/licenses/pddl/1.0/)
+## 📥 LOAD (Power BI)
+
+### Loading Strategy
+- Clean CSVs generated via Python
+- Loaded into **Power BI Desktop**
+- Relationships defined in Model View
+
+### Relationship Design
+- FactResults → DimDate (Active)
+- FactResults → DimTeams (Inactive for Home/Away)
+- `USERELATIONSHIP` used in DAX for team-level metrics
 
 ---
 
-## 📸 Dashboard Preview
+## 📊 Dashboards & Analytics
 
-<img width="1959" height="1099" alt="image" src="https://github.com/user-attachments/assets/7b80c1e9-4772-4ba6-9e86-ec99832be376" />
+### Page 1 – League Overview
+- Matches Played
+- Total Goals
+- Average Goals per Match
+- League-level comparisons
+
+<img width="1959" height="1099" alt="image" src="https://github.com/user-attachments/assets/e13767de-2413-4bc6-b5b3-db7823ad6939" />
 
 
-<img width="1959" height="1096" alt="image" src="https://github.com/user-attachments/assets/f53481fe-2682-48f4-8c71-c523973cfe2a" />
+### Page 2 – Team Performance
+- Points calculation
+- Goal difference
+- Team rankings
+- League & season filtering
+
+<img width="1959" height="1096" alt="image" src="https://github.com/user-attachments/assets/fb5d8d1a-7a2f-4c97-967c-e2b1f8d0d48a" />
 
 
-<img width="1955" height="1099" alt="image" src="https://github.com/user-attachments/assets/abdd18a5-5181-49bc-9efc-0518fb0609bc" />
+### Page 3 – Historical Trends
+- Goal trends from 1993–2025
+- League evolution analysis
+- All-time team dominance
+- Era-based scoring insights
+
+<img width="1955" height="1099" alt="image" src="https://github.com/user-attachments/assets/ce10b17c-68c7-4bd2-8803-afeae26f8661" />
 
 
 ---
 
-## 🚀 Future Enhancements
-- Advanced DAX measures (points tables, rankings, form analysis)
-- Automated refresh scheduling
-- Additional leagues or competitions
-- Enhanced historical trend analysis
+## 🧠 Key Insights
+
+- Football has become more attacking over time
+- Scoring trends differ significantly by league
+- Historical dominance patterns persist across decades
+- Modern football shows higher scoring intensity
 
 ---
 
-## 👤 Author
-**Rahul Ghantasala**  
-Data & Analytics | Power BI | Python  
+## 🛠️ Tech Stack
 
+- **Python**
+- Pandas
+- BeautifulSoup
+- Requests
+- **Power BI**
+- DAX
+- Star schema modeling
+- **Git & GitHub**
+- Version control
+- Documentation
 
